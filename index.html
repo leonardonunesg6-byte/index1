@@ -55,6 +55,7 @@
                 <p class="text-gray-400">Entre na sua conta para salvar seus treinos na nuvem e acessá-los de qualquer celular.</p>
             </div>
 
+            <!-- CARD DE LOGIN/CADASTRO -->
             <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-xl space-y-4">
                 <div class="flex border-b border-gray-700 mb-2">
                     <button id="tabLoginGo" class="flex-1 pb-3 text-center border-b-2 border-blue-500 font-bold text-white">Login</button>
@@ -114,10 +115,21 @@
                 </form>
             </div>
 
-            <div class="text-center">
-                <button id="btnGuestLogin" class="text-sm text-gray-400 hover:text-white underline transition">
-                    Testar sem salvar (Entrar como Visitante)
-                </button>
+            <!-- OPÇÕES SEGUNDO PLANO / EMERGÊNCIA -->
+            <div class="text-center space-y-4">
+                <div>
+                    <button id="btnGuestLogin" class="text-sm font-semibold text-blue-400 hover:text-blue-300 underline transition flex items-center justify-center mx-auto space-x-1.5">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>Entrar como Visitante</span>
+                    </button>
+                </div>
+                <div class="border-t border-gray-800 pt-4">
+                    <button id="btnForceOffline" class="text-xs text-amber-500 hover:text-amber-400 transition flex items-center justify-center mx-auto space-x-1.5 bg-amber-950/20 px-3.5 py-2.5 border border-amber-800/40 rounded-xl w-full max-w-xs font-semibold">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Ativar Modo 100% Offline (Sem Nuvem)</span>
+                    </button>
+                    <p class="text-[10px] text-gray-500 mt-1.5 max-w-[280px] mx-auto leading-relaxed">Se o seu Firebase der erro ou a tela não quiser passar, clique aqui para salvar seus treinos no próprio celular.</p>
+                </div>
             </div>
         </section>
 
@@ -307,7 +319,7 @@
 
     <!-- MODAL: CONFIGURAÇÃO DE CREDENCIAIS FIREBASE -->
     <div id="dbModal" class="fixed inset-0 z-50 bg-black/75 flex justify-center items-center px-4 hidden">
-        <div class="bg-gray-800 border border-gray-750 w-full max-w-md rounded-2xl p-6 space-y-4">
+        <div class="bg-gray-800 border-t border-gray-750 w-full max-w-md rounded-2xl p-6 space-y-4">
             <div class="flex justify-between items-center pb-2 border-b border-gray-700">
                 <h3 class="text-lg font-bold text-white flex items-center"><i class="fa-solid fa-cloud mr-2 text-blue-500"></i>Configurar Nuvem (Firebase)</h3>
                 <button type="button" id="closeDbModalBtn" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
@@ -490,6 +502,16 @@
             const savedCredentials = localStorage.getItem("fitplanner_firebase_config");
             const configToUse = savedCredentials ? JSON.parse(savedCredentials) : firebaseConfig;
 
+            // Verificação se quer forçar 100% offline
+            const forceOffline = localStorage.getItem("fitplanner_force_offline") === "true";
+
+            if (forceOffline) {
+                isFirebaseActive = false;
+                updateDbBadge(false, null);
+                loadOfflineUser();
+                return;
+            }
+
             try {
                 fbApp = initializeApp(configToUse);
                 fbAuth = getAuth(fbApp);
@@ -507,23 +529,41 @@
                 onAuthStateChanged(fbAuth, (user) => {
                     if (user) {
                         currentUser = user;
-                        handleAuthenticationState(true);
-                        syncUserWorkouts();
+                        // Tenta baixar as informações extras de cadastro se existirem
+                        const docRef = doc(fbDb, "users", user.uid);
+                        getDoc(docRef).then((snap) => {
+                            if (snap.exists()) {
+                                const extra = snap.data();
+                                currentUser.name = extra.name || user.displayName;
+                                currentUser.dob = extra.dob;
+                                currentUser.gender = extra.gender;
+                            }
+                            handleAuthenticationState(true);
+                            syncUserWorkouts();
+                        }).catch(() => {
+                            // Se der erro ou as regras bloquearem, avança de qualquer forma
+                            handleAuthenticationState(true);
+                            syncUserWorkouts();
+                        });
                     } else {
                         currentUser = null;
                         handleAuthenticationState(false);
                     }
                 });
             } else {
-                // Modo local offline puro
-                const localUser = localStorage.getItem("fitplanner_local_user");
-                if (localUser) {
-                    currentUser = JSON.parse(localUser);
-                    handleAuthenticationState(true);
-                    loadLocalWorkouts();
-                } else {
-                    handleAuthenticationState(false);
-                }
+                loadOfflineUser();
+            }
+        }
+
+        // CARREGAMENTO DE USUÁRIO OFFLINE
+        function loadOfflineUser() {
+            const localUser = localStorage.getItem("fitplanner_local_user");
+            if (localUser) {
+                currentUser = JSON.parse(localUser);
+                handleAuthenticationState(true);
+                loadLocalWorkouts();
+            } else {
+                handleAuthenticationState(false);
             }
         }
 
@@ -538,10 +578,10 @@
             // Atualiza barra de navegação ativa
             document.querySelectorAll(".nav-btn").forEach(btn => {
                 btn.classList.remove("bottom-nav-active");
-                btn.classList.add("text-gray-400");
+                btn.classList.add("text-gray-405");
                 if (btn.getAttribute("data-screen") === screenId) {
                     btn.classList.add("bottom-nav-active");
-                    btn.classList.remove("text-gray-400");
+                    btn.classList.remove("text-gray-405");
                 }
             });
         }
@@ -563,22 +603,32 @@
             const userBtn = document.getElementById("userMenuBtn");
             if (loggedIn) {
                 userBtn.classList.remove("hidden");
-                const initial = (currentUser.displayName || currentUser.name || "U")[0].toUpperCase();
+                
+                // Segura para evitar crash caso usuário seja nulo (Guest/Visitante)
+                const name = currentUser ? (currentUser.displayName || currentUser.name || "Usuário") : "Visitante";
+                const initial = name ? name[0].toUpperCase() : "V";
                 document.getElementById("userInitial").innerText = initial;
                 document.getElementById("profileInitial").innerText = initial;
 
-                document.getElementById("profileName").innerText = currentUser.displayName || currentUser.name || "Usuário FitPlanner";
+                document.getElementById("profileName").innerText = name;
 
-                const isPhone = currentUser.phoneNumber || (currentUser.identifier && !currentUser.identifier.includes("@"));
-                const contactStr = currentUser.email || currentUser.phoneNumber || currentUser.identifier || "Celular Cadastrado";
-                document.getElementById("profileMeta").innerText = isFirebaseActive ? "Nuvem Sincronizada" : "Modo Local";
+                let contactStr = "Sem sincronização (Offline)";
+                let dobStr = "Não cadastrado";
+                let genderStr = "Não informado";
+
+                if (currentUser) {
+                    contactStr = currentUser.email || currentUser.phoneNumber || currentUser.identifier || "Acesso Local";
+                    dobStr = currentUser.dob || "Não cadastrado";
+                    genderStr = currentUser.gender || "Não informado";
+                }
+
+                document.getElementById("profileMeta").innerText = (isFirebaseActive && currentUser) ? "Nuvem Sincronizada" : "Modo Local / Visitante";
                 document.getElementById("infoContact").innerText = contactStr;
-
-                document.getElementById("infoDob").innerText = currentUser.dob || "Não informado";
-                document.getElementById("infoGender").innerText = currentUser.gender || "Não informado";
+                document.getElementById("infoDob").innerText = dobStr;
+                document.getElementById("infoGender").innerText = genderStr;
 
                 // Se o usuário estivesse na tela de login, encaminha para meu treino
-                if (document.getElementById("screenLogin").classList.contains("hidden") === false) {
+                if (!document.getElementById("screenLogin").classList.contains("hidden")) {
                     showScreen("screenMyRoutine");
                 }
             } else {
@@ -589,7 +639,8 @@
 
         // CARREGA EXERCÍCIOS LOCAIS SE OFFLINE
         function loadLocalWorkouts() {
-            const key = currentUser ? `fitplanner_workouts_${currentUser.uid || currentUser.identifier}` : 'fitplanner_workouts_guest';
+            const userId = currentUser ? (currentUser.uid || currentUser.identifier || 'offline') : 'guest';
+            const key = `fitplanner_workouts_${userId}`;
             const data = localStorage.getItem(key);
             if (data) {
                 userWorkouts = JSON.parse(data);
@@ -601,7 +652,10 @@
 
         // SYNC FIREBASE WORKOUTS (DOWNLOAD)
         async function syncUserWorkouts() {
-            if (!isFirebaseActive || !currentUser) return;
+            if (!isFirebaseActive || !currentUser) {
+                loadLocalWorkouts();
+                return;
+            }
             try {
                 const docRef = doc(fbDb, "workouts", currentUser.uid);
                 const docSnap = await getDoc(docRef);
@@ -656,30 +710,30 @@
             listItems.forEach((item, index) => {
                 const detail = catalog.find(e => e.id === item.id) || { name: item.name || "Exercício Personalizado", video: item.name, muscle: "Outro" };
                 const card = document.createElement("div");
-                card.className = "bg-gray-800 border border-gray-750 p-4 rounded-2xl flex flex-col justify-between space-y-3.5 shadow-md";
+                card.className = "bg-gray-800 border border-gray-750 p-4 rounded-2xl flex flex-col justify-between space-y-3.5 shadow-md animate-fadeIn";
 
                 card.innerHTML = `
                     <div class="flex items-start justify-between">
                         <div>
                             <span class="text-[10px] font-extrabold px-2 py-0.5 bg-blue-900/30 text-blue-400 rounded-md uppercase tracking-wide">${translateMuscleGroup(detail.muscle)}</span>
                             <h4 class="font-bold text-white mt-1.5 leading-snug">${detail.name}</h4>
-                            ${item.notes ? `<p class="text-xs text-gray-405 mt-1"><i class="fa-solid fa-note-sticky text-gray-500 mr-1"></i>${item.notes}</p>` : ''}
+                            ${item.notes ? `<p class="text-xs text-gray-450 mt-1"><i class="fa-solid fa-note-sticky text-gray-500 mr-1"></i>${item.notes}</p>` : ''}
                         </div>
                         <div class="flex space-x-1.5">
-                            <button class="edit-workout-btn text-gray-400 hover:text-blue-500 p-1.5 transition" data-index="${index}" title="Editar">
+                            <button class="edit-workout-btn text-gray-450 hover:text-blue-500 p-1.5 transition" data-index="${index}" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button class="remove-workout-btn text-gray-400 hover:text-red-500 p-1.5 transition" data-index="${index}" title="Remover">
+                            <button class="remove-workout-btn text-gray-450 hover:text-red-500 p-1.5 transition" data-index="${index}" title="Remover">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between border-t border-gray-750 pt-3">
-                        <div class="flex space-x-4 text-sm text-gray-300">
-                            <div><span class="text-xs text-gray-400 font-medium">Séries:</span> <strong class="text-white">${item.sets}</strong></div>
-                            <div><span class="text-xs text-gray-400 font-medium">Reps:</span> <strong class="text-white">${item.reps}</strong></div>
-                            <div><span class="text-xs text-gray-400 font-medium">Carga:</span> <strong class="text-white">${item.weight ? item.weight + ' kg' : '--'}</strong></div>
+                    <div class="flex items-center justify-between border-t border-gray-755 pt-3">
+                        <div class="flex space-x-4 text-sm text-gray-305">
+                            <div><span class="text-xs text-gray-450 font-medium">Séries:</span> <strong class="text-white">${item.sets}</strong></div>
+                            <div><span class="text-xs text-gray-455 font-medium">Reps:</span> <strong class="text-white">${item.reps}</strong></div>
+                            <div><span class="text-xs text-gray-455 font-medium">Carga:</span> <strong class="text-white">${item.weight ? item.weight + ' kg' : '--'}</strong></div>
                         </div>
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(detail.video + ' execucao certa academia')}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-3 py-1.5 bg-gray-700 hover:bg-gray-650 text-white rounded-lg flex items-center space-x-1 border border-gray-600 transition">
                             <i class="fa-brands fa-youtube text-red-500"></i>
@@ -760,7 +814,7 @@
 
             filtered.forEach(ex => {
                 const card = document.createElement("div");
-                card.className = "bg-gray-850 hover:bg-gray-800 border border-gray-700/50 rounded-xl p-3.5 flex items-center justify-between transition gap-2";
+                card.className = "bg-gray-850 hover:bg-gray-800 border border-gray-700/50 rounded-xl p-3.5 flex items-center justify-between transition gap-2 animate-fadeIn";
                 card.innerHTML = `
                     <div class="flex-1">
                         <span class="text-[9px] font-extrabold px-1.5 py-0.5 bg-gray-700 text-gray-300 rounded uppercase tracking-wider">${translateMuscleGroup(ex.muscle)}</span>
@@ -914,7 +968,7 @@
                 try {
                     await signInWithEmailAndPassword(fbAuth, email, pass);
                 } catch (err) {
-                    alert(`Falha no login: ID ou Senha inválidos.`);
+                    alert(`Falha no login: ID ou Senha incorretos. Caso tenha acabado de criar seu Firebase, certifique-se de que a opção 'E-mail/Senha' foi ativada na aba Authentication no console do Firebase!`);
                 }
             } else {
                 // Login Local Simulado Offline
@@ -930,7 +984,7 @@
                         alert("Senha incorreta!");
                     }
                 } else {
-                    alert("Conta não encontrada localmente!");
+                    alert("Conta não encontrada localmente! Cadastre-se ou use o modo visitante.");
                 }
             }
         });
@@ -957,7 +1011,7 @@
                 phone = id.replace(/\D/g, "");
                 email = `${phone}@fitplanner.com`;
                 if(phone.length < 10) {
-                    alert("Insira um número de telefone válido com DDD!");
+                    alert("Insira um número de telefone válido com o seu DDD!");
                     return;
                 }
             }
@@ -979,18 +1033,22 @@
                     await updateProfile(cred.user, { displayName: name });
 
                     // Salva os dados extras de cadastro (Dob, Gênero) no Firestore
-                    await setDoc(doc(fbDb, "users", cred.user.uid), {
-                        name: name,
-                        dob: dob,
-                        gender: gender,
-                        createdAt: new Date().toISOString()
-                    });
+                    try {
+                        await setDoc(doc(fbDb, "users", cred.user.uid), {
+                            name: name,
+                            dob: dob,
+                            gender: gender,
+                            createdAt: new Date().toISOString()
+                        });
+                    } catch (storeErr) {
+                        console.warn("Usuário criado, mas não conseguiu salvar extras no Firestore (Verifique se ativou o Firestore Database em modo teste no seu Firebase):", storeErr.message);
+                    }
 
                     currentUser = { ...cred.user, ...userData, uid: cred.user.uid };
                     handleAuthenticationState(true);
                     saveWorkouts(); // Cria a lista vazia
                 } catch (err) {
-                    alert(`Erro ao criar conta na nuvem: ${err.message}`);
+                    alert(`Não foi possível criar sua conta na Nuvem.\n\nERRO: ${err.message}\n\nDICA: Certifique-se de que ativou o método de login por 'E-mail/Senha' dentro da aba Authentication do seu Firebase Console! Se quiser usar agora sem configurar, clique em 'Ativar Modo 100% Offline' no final da tela.`);
                 }
             } else {
                 // Cadastro Local Simulado Offline
@@ -1018,14 +1076,38 @@
             document.getElementById("loginForm").classList.add("hidden");
         });
 
-        // LOGIN DE VISITANTE (SÓ LOCAL)
+        // LOGIN DE VISITANTE (SÓ LOCAL) - Corrigido para não quebrar
         document.getElementById("btnGuestLogin").addEventListener("click", (e) => {
             currentUser = null;
             localStorage.removeItem("fitplanner_local_user");
+            
+            // Força reset para Local sem crashear
             handleAuthenticationState(true);
+            
             document.getElementById("profileName").innerText = "Visitante (Offline)";
-            document.getElementById("infoContact").innerText = "Sem sincronização";
+            document.getElementById("infoContact").innerText = "Sem sincronização (Salvo apenas no aparelho)";
+            document.getElementById("profileMeta").innerText = "Modo Local";
+            
             loadLocalWorkouts();
+        });
+
+        // FORÇAR MODO 100% OFFLINE (A PEDIDO/DE EMERGENGIA)
+        document.getElementById("btnForceOffline").addEventListener("click", (e) => {
+            localStorage.setItem("fitplanner_force_offline", "true");
+            alert("Modo 100% Offline Ativado! O aplicativo não tentará se conectar ao Firebase e salvará tudo no próprio aparelho de forma confiável.");
+            location.reload();
+        });
+
+        // DESATIVAR FORÇAR OFFLINE (Ao clicar no badge do topo se quiser religar a nuvem)
+        document.getElementById("dbStatusBadge").addEventListener("click", () => {
+            if (localStorage.getItem("fitplanner_force_offline") === "true") {
+                if (confirm("Você está no Modo Forçado Offline. Quer reativar a tentativa de conexão com a Nuvem (Firebase)?")) {
+                    localStorage.removeItem("fitplanner_force_offline");
+                    location.reload();
+                }
+            } else {
+                openDbModal();
+            }
         });
 
         // RECUPERAÇÃO DE SENHA
@@ -1047,23 +1129,25 @@
                     alert("Erro ao enviar recuperação: " + err.message);
                 }
             } else {
-                alert(`Para o Modo Local Offline, contate o administrador. Usuário cadastrado localmente: ${id}`);
+                alert(`No Modo Local Offline, contate o administrador ou refaça o cadastro de teste. Dados salvos localmente no aparelho para o ID: ${id}`);
             }
         });
 
         // LOGOUT / LOGOFF DO SISTEMA
         document.getElementById("logoutBtn").addEventListener("click", async () => {
-            if (isFirebaseActive) {
-                await signOut(fbAuth);
-            } else {
-                localStorage.removeItem("fitplanner_local_user");
-                currentUser = null;
-                handleAuthenticationState(false);
+            if (isFirebaseActive && fbAuth.currentUser) {
+                try {
+                    await signOut(fbAuth);
+                } catch (err) {
+                    console.log("Logout offline forçado:", err.message);
+                }
             }
+            localStorage.removeItem("fitplanner_local_user");
+            currentUser = null;
+            handleAuthenticationState(false);
         });
 
         // ATIVAÇÃO DE MODAL FIREBASE
-        document.getElementById("dbStatusBadge").addEventListener("click", openDbModal);
         function openDbModal() {
             // Tenta obter credenciais do local storage se houverem, ou preenche as da imagem como default
             const custom = localStorage.getItem("fitplanner_firebase_config");
@@ -1095,12 +1179,14 @@
             };
 
             localStorage.setItem("fitplanner_firebase_config", JSON.stringify(config));
+            localStorage.removeItem("fitplanner_force_offline"); // garante que reativa a nuvem
             alert("Credenciais aplicadas! Recarregando a página para conectar ao novo banco de dados...");
             location.reload();
         });
 
         document.getElementById("btnDisableFirebase").addEventListener("click", () => {
             localStorage.removeItem("fitplanner_firebase_config");
+            localStorage.removeItem("fitplanner_force_offline");
             alert("Uso de Firebase Customizado removido. Retornando ao padrão ou Modo Local. Recarregando...");
             location.reload();
         });
