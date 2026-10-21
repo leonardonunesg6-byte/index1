@@ -113,6 +113,30 @@
                         <i class="fa-solid fa-user-plus mr-2"></i> Criar Minha Conta
                     </button>
                 </form>
+
+                <!-- BOTÕES LOGIN SOCIAL (GOOGLE, APPLE E FACEBOOK) -->
+                <div class="space-y-3 pt-2">
+                    <div class="relative flex py-1 items-center">
+                        <div class="flex-grow border-t border-gray-750"></div>
+                        <span class="flex-shrink mx-4 text-xs text-gray-500 font-bold uppercase tracking-wider text-center">ou acesse com</span>
+                        <div class="flex-grow border-t border-gray-750"></div>
+                    </div>
+                    
+                    <button type="button" id="googleLoginBtn" class="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 rounded-xl shadow-md transition flex justify-center items-center text-sm">
+                        <i class="fa-brands fa-google text-red-500 mr-2 text-lg"></i>
+                        <span>Entrar com o Google</span>
+                    </button>
+
+                    <button type="button" id="appleLoginBtn" class="w-full bg-black hover:bg-zinc-900 border border-zinc-800 text-white font-bold py-3 rounded-xl shadow-md transition flex justify-center items-center text-sm">
+                        <i class="fa-brands fa-apple mr-2 text-xl"></i>
+                        <span>Entrar com a Apple</span>
+                    </button>
+
+                    <button type="button" id="facebookLoginBtn" class="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-xl shadow-md transition flex justify-center items-center text-sm">
+                        <i class="fa-brands fa-facebook mr-2 text-lg"></i>
+                        <span>Entrar com o Facebook</span>
+                    </button>
+                </div>
             </div>
 
             <!-- OPÇÕES SEGUNDO PLANO / EMERGÊNCIA -->
@@ -149,19 +173,19 @@
                     <span class="text-xs uppercase opacity-75 font-medium">QUA</span>
                     <span class="font-bold text-sm">3</span>
                 </button>
-                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-850 hover:bg-gray-800 text-gray-450" data-day="qui">
+                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-855 hover:bg-gray-800 text-gray-450" data-day="qui">
                     <span class="text-xs uppercase opacity-75 font-medium">QUI</span>
                     <span class="font-bold text-sm">4</span>
                 </button>
-                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-850 hover:bg-gray-800 text-gray-450" data-day="sex">
+                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-855 hover:bg-gray-800 text-gray-450" data-day="sex">
                     <span class="text-xs uppercase opacity-75 font-medium">SEX</span>
                     <span class="font-bold text-sm">5</span>
                 </button>
-                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-850 hover:bg-gray-800 text-gray-450" data-day="sab">
+                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-855 hover:bg-gray-800 text-gray-455" data-day="sab">
                     <span class="text-xs uppercase opacity-75 font-medium">SÁB</span>
                     <span class="font-bold text-sm">6</span>
                 </button>
-                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-850 hover:bg-gray-800 text-gray-450" data-day="dom">
+                <button class="day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-855 hover:bg-gray-800 text-gray-455" data-day="dom">
                     <span class="text-xs uppercase opacity-75 font-medium">DOM</span>
                     <span class="font-bold text-sm">7</span>
                 </button>
@@ -207,16 +231,16 @@
             <div class="flex space-x-2 overflow-x-auto no-scrollbar py-1">
                 <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-blue-600 text-white" data-muscle="all">Todos</button>
                 <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="quadriceps">Quadríceps</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="posterior">Posterior de Coxa</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="gluteos">Glúteos</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="panturrilha">Panturrilha</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="peito">Peitoral</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="costas">Costas</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="ombros">Ombros</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="biceps">Bíceps</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="triceps">Tríceps</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="antebraço">Antebraço</button>
-                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400" data-muscle="abdomen">Abdômen</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-850 hover:bg-gray-800 text-gray-450" data-muscle="posterior">Posterior de Coxa</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-850 hover:bg-gray-800 text-gray-450" data-muscle="gluteos">Glúteos</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-800 text-gray-450" data-muscle="panturrilha">Panturrilha</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-800 text-gray-455" data-muscle="peito">Peitoral</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-800 text-gray-455" data-muscle="costas">Costas</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-800 text-gray-455" data-muscle="ombros">Ombros</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-855 text-gray-455" data-muscle="biceps">Bíceps</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-855 text-gray-455" data-muscle="triceps">Tríceps</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-855 text-gray-455" data-muscle="antebraço">Antebraço</button>
+                <button class="muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-855 hover:bg-gray-855 text-gray-455" data-muscle="abdomen">Abdômen</button>
             </div>
 
             <!-- Lista de Exercícios do Catálogo -->
@@ -276,7 +300,7 @@
 
     <!-- MODAL: ADICIONAR/EDITAR EXERCÍCIO NO TREINO -->
     <div id="workoutModal" class="fixed inset-0 z-50 bg-black/75 flex justify-center items-end hidden">
-        <div class="bg-gray-800 border-t border-gray-750 w-full max-w-md rounded-t-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+        <div class="bg-gray-800 border-t border-gray-755 w-full max-w-md rounded-t-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-2 border-b border-gray-700">
                 <h3 id="workoutModalTitle" class="text-lg font-extrabold text-white">Agendar Exercício</h3>
                 <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
@@ -369,7 +393,7 @@
     <script type="module">
         // Importações modulares do Firebase v10
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // SEUS DADOS EXATOS DO FIREBASE EXTRAÍDOS DA IMAGEM
@@ -578,10 +602,10 @@
             // Atualiza barra de navegação ativa
             document.querySelectorAll(".nav-btn").forEach(btn => {
                 btn.classList.remove("bottom-nav-active");
-                btn.classList.add("text-gray-405");
+                btn.classList.add("text-gray-450");
                 if (btn.getAttribute("data-screen") === screenId) {
                     btn.classList.add("bottom-nav-active");
-                    btn.classList.remove("text-gray-405");
+                    btn.classList.remove("text-gray-450");
                 }
             });
         }
@@ -710,7 +734,7 @@
             listItems.forEach((item, index) => {
                 const detail = catalog.find(e => e.id === item.id) || { name: item.name || "Exercício Personalizado", video: item.name, muscle: "Outro" };
                 const card = document.createElement("div");
-                card.className = "bg-gray-800 border border-gray-750 p-4 rounded-2xl flex flex-col justify-between space-y-3.5 shadow-md animate-fadeIn";
+                card.className = "bg-gray-800 border border-gray-755 p-4 rounded-2xl flex flex-col justify-between space-y-3.5 shadow-md animate-fadeIn";
 
                 card.innerHTML = `
                     <div class="flex items-start justify-between">
@@ -736,7 +760,7 @@
                             <div><span class="text-xs text-gray-455 font-medium">Carga:</span> <strong class="text-white">${item.weight ? item.weight + ' kg' : '--'}</strong></div>
                         </div>
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(detail.video + ' execucao certa academia')}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold px-3 py-1.5 bg-gray-700 hover:bg-gray-650 text-white rounded-lg flex items-center space-x-1 border border-gray-600 transition">
-                            <i class="fa-brands fa-youtube text-red-500"></i>
+                            <i class="fa-brands fa-youtube text-red-505"></i>
                             <span>Ver Vídeo</span>
                         </a>
                     </div>
@@ -767,7 +791,7 @@
         document.querySelectorAll(".day-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 document.querySelectorAll(".day-btn").forEach(b => {
-                    b.className = "day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-850 hover:bg-gray-800 text-gray-450";
+                    b.className = "day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-gray-855 hover:bg-gray-800 text-gray-455";
                 });
                 e.currentTarget.className = "day-btn flex-1 min-w-[52px] py-2 px-1.5 rounded-xl flex flex-col items-center bg-blue-600 text-white";
 
@@ -814,7 +838,7 @@
 
             filtered.forEach(ex => {
                 const card = document.createElement("div");
-                card.className = "bg-gray-850 hover:bg-gray-800 border border-gray-700/50 rounded-xl p-3.5 flex items-center justify-between transition gap-2 animate-fadeIn";
+                card.className = "bg-gray-855 hover:bg-gray-805 border border-gray-700/50 rounded-xl p-3.5 flex items-center justify-between transition gap-2 animate-fadeIn";
                 card.innerHTML = `
                     <div class="flex-1">
                         <span class="text-[9px] font-extrabold px-1.5 py-0.5 bg-gray-700 text-gray-300 rounded uppercase tracking-wider">${translateMuscleGroup(ex.muscle)}</span>
@@ -845,7 +869,7 @@
         document.querySelectorAll(".muscle-filter-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 document.querySelectorAll(".muscle-filter-btn").forEach(b => {
-                    b.className = "muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-750 text-gray-400";
+                    b.className = "muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-gray-850 hover:bg-gray-750 text-gray-450";
                 });
                 e.currentTarget.className = "muscle-filter-btn px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap bg-blue-600 text-white";
 
@@ -951,7 +975,93 @@
             closeWorkoutModal();
         });
 
-        // AUTHENTICATION - LOGIN DE USUÁRIOS
+        // CRIA OU ATUALIZA O CADASTRO DE REDES SOCIAIS NA NUVEM
+        async function syncSocialUser(user, providerName) {
+            try {
+                const docRef = doc(fbDb, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                if (!docSnap.exists()) {
+                    await setDoc(docRef, {
+                        name: user.displayName || `Usuário ${providerName}`,
+                        dob: "Não informado",
+                        gender: "Não informado",
+                        createdAt: new Date().toISOString()
+                    });
+                }
+            } catch (storeErr) {
+                console.warn(`Não pôde salvar dados extras de login ${providerName} no Firestore:`, storeErr.message);
+            }
+            currentUser = user;
+            handleAuthenticationState(true);
+            syncUserWorkouts();
+        }
+
+        // CADASTRO/LOGIN SOCIAL SIMULADO OFFLINE
+        function mockSocialLogin(providerName, id, email) {
+            const mockUser = {
+                name: `Usuário ${providerName} Offline`,
+                displayName: `Usuário ${providerName} Offline`,
+                identifier: email,
+                email: email,
+                dob: "01/01/1990",
+                gender: "Não Informar",
+                uid: id
+            };
+            
+            localStorage.setItem("fitplanner_local_user", JSON.stringify(mockUser));
+            currentUser = mockUser;
+            handleAuthenticationState(true);
+            loadLocalWorkouts();
+            alert(`Modo Offline Ativo: Login com ${providerName} simulado localmente!`);
+        }
+
+        // LOGIN COM GOOGLE
+        document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+            if (isFirebaseActive) {
+                try {
+                    const provider = new GoogleAuthProvider();
+                    const result = await signInWithPopup(fbAuth, provider);
+                    await syncSocialUser(result.user, "Google");
+                } catch (err) {
+                    alert(`Falha no Login com o Google.\n\nERRO: ${err.message}\n\nDICA: Certifique-se de que ativou o Google como Provedor na aba Authentication > Sign-in Method no Firebase console.`);
+                }
+            } else {
+                mockSocialLogin("Google", "google_local_user", "google@offline.com");
+            }
+        });
+
+        // LOGIN COM APPLE
+        document.getElementById("appleLoginBtn").addEventListener("click", async () => {
+            if (isFirebaseActive) {
+                try {
+                    const provider = new OAuthProvider('apple.com');
+                    const result = await signInWithPopup(fbAuth, provider);
+                    await syncSocialUser(result.user, "Apple");
+                } catch (err) {
+                    alert(`Falha no Login com a Apple.\n\nERRO: ${err.message}\n\nDICA: Certifique-se de que ativou a Apple como Provedor na aba Authentication > Sign-in Method no Firebase console.`);
+                }
+            } else {
+                mockSocialLogin("Apple", "apple_local_user", "apple@offline.com");
+            }
+        });
+
+        // LOGIN COM FACEBOOK
+        document.getElementById("facebookLoginBtn").addEventListener("click", async () => {
+            if (isFirebaseActive) {
+                try {
+                    const provider = new FacebookAuthProvider();
+                    const result = await signInWithPopup(fbAuth, provider);
+                    await syncSocialUser(result.user, "Facebook");
+                } catch (err) {
+                    alert(`Falha no Login com o Facebook.\n\nERRO: ${err.message}\n\nDICA: Certifique-se de que ativou o Facebook como Provedor na aba Authentication > Sign-in Method no Facebook console.`);
+                }
+            } else {
+                mockSocialLogin("Facebook", "facebook_local_user", "facebook@offline.com");
+            }
+        });
+
+        // AUTHENTICATION - LOGIN DE USUÁRIOS TRADICIONAIS
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const id = document.getElementById("loginIdentifier").value.trim();
@@ -1076,7 +1186,7 @@
             document.getElementById("loginForm").classList.add("hidden");
         });
 
-        // LOGIN DE VISITANTE (SÓ LOCAL) - Corrigido para não quebrar
+        // LOGIN DE VISITANTE (SÓ LOCAL)
         document.getElementById("btnGuestLogin").addEventListener("click", (e) => {
             currentUser = null;
             localStorage.removeItem("fitplanner_local_user");
