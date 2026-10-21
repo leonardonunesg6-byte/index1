@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPlanner - Planejador de Treinos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- AUTH CONTAINER (Login, Registro e Recuperação) -->
+    <div id="auth-container" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="w-full max-w-md bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-8 flex flex-col items-center backdrop-blur-xl">
+            <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25">
+                <i class="fas fa-dumbbell text-3xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white tracking-tight mb-1 text-center">FitPlanner</h1>
+            <h2 id="auth-title" class="text-xl font-bold text-slate-200 mb-1 text-center">Entrar</h2>
+            <p id="auth-subtitle" class="text-slate-400 text-xs sm:text-sm mb-6 text-center">Bem-vindo de volta! Acesse sua conta.</p>
+
+            <div class="w-full space-y-4">
+                <!-- E-mail / Telefone -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">E-mail ou Telefone</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                            <i class="fas fa-user text-sm"></i>
+                        </span>
+                        <input type="text" id="auth-contact" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm" placeholder="ex: usuario@email.com ou (11) 99999-9999">
+                    </div>
+                </div>
+                
+                <!-- Campos adicionais do Registro -->
+                <div id="form-register-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Nome Completo</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                                <i class="fas fa-id-card text-sm"></i>
+                            </span>
+                            <input type="text" id="auth-name" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-all text-sm" placeholder="Seu nome completo">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Nascimento</label>
+                            <input type="date" id="auth-dob" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 [color-scheme:dark] transition-all text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Gênero</label>
+                            <select id="auth-gender" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Outro">Outro</option>
+                                <option value="Prefiro não dizer">Prefiro não dizer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Senha -->
+                <div id="auth-password-container">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Senha</label>
+                        <button id="forgot-password-link" onclick="showForgotPassword()" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">Esqueceu a senha?</button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                            <i class="fas fa-lock text-sm"></i>
+                        </span>
+                        <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button id="auth-action-btn" onclick="handleLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] mt-2 flex justify-center items-center gap-2">
+                    <span>Entrar</span>
+                </button>
+
+                <!-- Visitante Option -->
+                <button onclick="loginGuest()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition-all text-sm flex justify-center items-center gap-2">
+                    <i class="fas fa-user-clock text-slate-400"></i>
+                    <span>Entrar como Visitante</span>
+                </button>
+            </div>
+
+            <div class="mt-6 text-sm text-slate-400 text-center" id="auth-toggle-text">
+                Não tem uma conta? <button onclick="showRegister()" class="text-blue-400 font-bold ml-1 hover:text-blue-300 transition-colors">Cadastre-se</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER PRINCIPAL -->
+    <div id="app-container" class="hidden min-h-screen w-full flex-col pb-20 md:pb-6">
+
+        <!-- Header -->
+        <header class="glass-header border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 sm:px-6 flex justify-between items-center shadow-lg">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
+                    <i class="fas fa-dumbbell text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg text-white leading-none">FitPlanner</h1>
+                    <button onclick="openFirebaseConfigModal()" id="auth-status" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-900/40 text-blue-300 border border-blue-800/50 mt-1 hover:bg-blue-900/60 transition-all cursor-pointer">
+                        <i class="fas fa-database mr-1"></i> Modo Local (Clique p/ Configurar Nuvem)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Header Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
+                <button onclick="switchTab('routine')" id="nav-btn-routine" class="nav-tab-btn flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white shadow-md">
+                    <i class="fas fa-calendar-week"></i>
+                    <span>Meu Treino</span>
+                </button>
+                <button onclick="switchTab('catalog')" id="nav-btn-catalog" class="nav-tab-btn flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Catálogo</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-btn-profile" class="nav-tab-btn flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <i class="fas fa-user-ninja"></i>
+                    <span>Perfil</span>
+                </button>
+            </nav>
+
+            <button onclick="openAddExerciseModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg shadow-blue-600/25 flex items-center space-x-2 active:scale-95 transition-all">
+                <i class="fas fa-plus"></i>
+                <span class="hidden sm:inline">Adicionar Exercício</span>
+            </button>
+        </header>
+
+        <!-- VIEW 1: Meu Treino Semanal -->
+        <main id="view-routine" class="tab-content flex-1 p-4 sm:p-6 max-w-5xl mx-auto w-full">
+            <!-- Selector de Dias da Semana -->
+            <div class="mb-6 overflow-x-auto pb-2 scrollbar-none">
+                <div class="flex space-x-2 min-w-max" id="days-selector">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- Resumo do Dia -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900/80 border border-slate-800 rounded-2xl p-4 mb-6 gap-3 shadow-md">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></span>
+                        <h2 class="text-xl font-bold text-white capitalize" id="current-day-title">Segunda-feira</h2>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5" id="current-day-subtitle">0 exercícios agendados</p>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <button onclick="clearDayRoutine()" class="text-xs text-red-400 hover:text-red-300 bg-red-950/30 border border-red-900/50 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                        <i class="fas fa-trash-can"></i> Limpar Dia
+                    </button>
+                    <button onclick="openAddExerciseModal()" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-md">
+                        <i class="fas fa-plus-circle"></i> Novo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de Exercícios do Dia -->
+            <div id="routine-list" class="space-y-4">
+                <!-- Exercícios inseridos dinamicamente -->
+            </div>
+        </main>
+
+        <!-- VIEW 2: Catálogo Completo de Exercícios -->
+        <main id="view-catalog" class="tab-content hidden flex-1 p-4 sm:p-6 max-w-6xl mx-auto w-full">
+            <div class="mb-6">
+                <h2 class="text-2xl font-black text-white tracking-tight mb-2">Catálogo de Exercícios</h2>
+                <p class="text-slate-400 text-sm">Explore todos os exercícios divididos por grupos musculares específicos e assista à execução em vídeo.</p>
+            </div>
+
+            <!-- Busca & Filtro de Grupos Musculares -->
+            <div class="space-y-4 mb-8">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" id="catalog-search" oninput="filterCatalog()" class="w-full bg-slate-900 border border-slate-800 rounded-2xl py-3.5 pl-11 pr-4 text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm" placeholder="Buscar por nome do exercício ou músculo...">
+                </div>
+
+                <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none" id="muscle-filter-pills">
+                    <!-- Filtros dinâmicos -->
+                </div>
+            </div>
+
+            <!-- Grid de Exercícios do Catálogo -->
+            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Renderizado via JS -->
+            </div>
+        </main>
+
+        <!-- VIEW 3: Perfil do Usuário -->
+        <main id="view-profile" class="tab-content hidden flex-1 p-4 sm:p-6 max-w-3xl mx-auto w-full">
+            <h2 class="text-2xl font-black text-white tracking-tight mb-6">Meu Perfil</h2>
+            
+            <div class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 text-center shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="absolute top-4 right-4 flex items-center gap-2">
+                    <button onclick="openFirebaseConfigModal()" class="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-blue-400 hover:bg-slate-700/80 flex items-center justify-center transition-all shadow-md" title="Configurações do Firebase">
+                        <i class="fas fa-gear"></i>
+                    </button>
+                    <button onclick="logout()" class="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-red-400 hover:bg-slate-700/80 flex items-center justify-center transition-all shadow-md" title="Sair da conta">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </button>
+                </div>
+                
+                <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto mb-4 shadow-xl shadow-blue-500/20 border border-blue-400/20">
+                    <i class="fas fa-user-ninja"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold text-white mb-1" id="profile-name">Carregando...</h3>
+                <p class="text-sm text-slate-400 mb-4" id="profile-contact">---</p>
+                
+                <div class="flex flex-wrap justify-center items-center gap-3 text-xs text-slate-300 bg-slate-950/80 py-2.5 px-4 rounded-xl border border-slate-800 inline-flex mx-auto">
+                    <span id="profile-dob"><i class="fas fa-calendar-alt text-blue-400 mr-1.5"></i> --/--/----</span>
+                    <span class="w-px h-3 bg-slate-700"></span>
+                    <span id="profile-gender"><i class="fas fa-venus-mars text-indigo-400 mr-1.5"></i> --</span>
+                </div>
+
+                <!-- Estatísticas Rápidas -->
+                <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl">
+                        <span class="block text-2xl font-extrabold text-blue-400" id="stat-total-exercises">0</span>
+                        <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Exercícios no Treino</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl">
+                        <span class="block text-2xl font-extrabold text-indigo-400" id="stat-catalog-count">45+</span>
+                        <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Exercícios Disponíveis</span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 bg-slate-950/60 border border-slate-800 p-4 rounded-2xl">
+                        <span class="block text-2xl font-extrabold text-emerald-400" id="stat-days-active">7/7</span>
+                        <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Dias Configuráveis</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation Bottom Bar (Mobile) -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 glass-header border-t border-slate-800 p-2 z-40 flex justify-around items-center">
+            <button onclick="switchTab('routine')" id="mob-nav-routine" class="flex flex-col items-center p-2 rounded-xl text-blue-400 transition-all">
+                <i class="fas fa-calendar-week text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Treino</span>
+            </button>
+            <button onclick="switchTab('catalog')" id="mob-nav-catalog" class="flex flex-col items-center p-2 rounded-xl text-slate-400 transition-all">
+                <i class="fas fa-layer-group text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Catálogo</span>
+            </button>
+            <button onclick="switchTab('profile')" id="mob-nav-profile" class="flex flex-col items-center p-2 rounded-xl text-slate-400 transition-all">
+                <i class="fas fa-user-ninja text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Perfil</span>
+            </button>
+        </div>
+
+    </div> <!-- FIM APP CONTAINER -->
+
+    <!-- MODAL: Adicionar / Editar Exercício no Treino -->
+    <div id="exercise-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeExerciseModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-xl font-bold text-white mb-1" id="modal-title">Adicionar Exercício ao Treino</h3>
+            <p class="text-xs text-slate-400 mb-5">Configure as séries, repetições e carga do seu exercício.</p>
+
+            <form id="exercise-form" onsubmit="saveRoutineItem(event)" class="space-y-4">
+                <input type="hidden" id="modal-item-id" value="">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Dia da Semana</label>
+                    <select id="modal-day" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm">
+                        <option value="Segunda">Segunda-feira</option>
+                        <option value="Terça">Terça-feira</option>
+                        <option value="Quarta">Quarta-feira</option>
+                        <option value="Quinta">Quinta-feira</option>
+                        <option value="Sexta">Sexta-feira</option>
+                        <option value="Sábado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Grupo Muscular</label>
+                    <select id="modal-category" onchange="updateModalExerciseOptions()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm">
+                        <!-- Preenchido via JS -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Exercício</label>
+                    <select id="modal-exercise-select" onchange="syncExerciseNameInput()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm mb-2">
+                        <!-- Preenchido dinamicamente -->
+                    </select>
+                    <input type="text" id="modal-exercise-name" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm" placeholder="Ou digite o nome do exercício personalizado...">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Séries</label>
+                        <input type="number" id="modal-sets" min="1" max="20" value="4" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm text-center font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Repetições</label>
+                        <input type="text" id="modal-reps" value="10-12" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm text-center font-bold" placeholder="ex: 10 ou 8-12">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Carga (kg)</label>
+                        <input type="text" id="modal-weight" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm text-center font-bold" placeholder="ex: 20kg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Observações / Descanso</label>
+                    <input type="text" id="modal-notes" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 text-sm" placeholder="ex: Descanso de 60s, cadência controlada...">
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeExerciseModal()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition-all">Cancelar</button>
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2">
+                        <i class="fas fa-check"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Configurar Firebase Personalizado -->
+    <div id="firebase-config-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="closeFirebaseConfigModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-xl font-bold text-white mb-1"><i class="fas fa-cloud text-blue-500 mr-2"></i> Configurar Conexão Nuvem</h3>
+            <p class="text-xs text-slate-400 mb-4">Insira suas credenciais do Firebase para sincronização entre dispositivos. Se deixado em branco, o app funciona perfeitamente em modo Local.</p>
+
+            <form onsubmit="saveCustomFirebaseConfig(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">API Key</label>
+                    <input type="text" id="cfg-apiKey" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 text-xs" placeholder="AIzaSy...">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Auth Domain</label>
+                    <input type="text" id="cfg-authDomain" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 text-xs" placeholder="seu-app.firebaseapp.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Project ID</label>
+                    <input type="text" id="cfg-projectId" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 text-xs" placeholder="seu-app">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="clearCustomFirebaseConfig()" class="px-4 py-2.5 rounded-xl bg-red-950/40 border border-red-900/50 text-red-400 hover:text-white text-xs font-semibold">Usar Modo Local</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md">Salvar e Conectar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 -translate-y-10 pointer-events-none z-[100] flex items-center space-x-3 font-medium text-sm">
+        <i id="toast-icon" class="fas fa-check-circle text-green-400 text-lg"></i>
+        <span id="toast-msg">Mensagem de notificação</span>
+    </div>
+
+    <script type="module">
+        /* Import Firebase standard modules */
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const savedCustomCfg = localStorage.getItem('fitplanner_custom_firebase_cfg');
+        let firebaseConfig = null;
+        
+        if (savedCustomCfg) {
+            try {
+                firebaseConfig = JSON.parse(savedCustomCfg);
+            } catch(e) {}
+        }
+        
+        if (!firebaseConfig) {
+            firebaseConfig = window.__FIREBASE_CONFIG__ || {
+                apiKey: "AIzaSyDemoKeyFitPlanner2026ValidBuild",
+                authDomain: "fitplanner-app.firebaseapp.com",
+                projectId: "fitplanner-app",
+                storageBucket: "fitplanner-app.appspot.com",
+                messagingSenderId: "100000000000",
+                appId: "1:100000000000:web:fitplannerkey"
+            };
+        }
+
+        const appId = window.__ARTIFACT_ID__ || "fitplanner-default-app";
+
+        let app = null, auth = null, db = null;
+        let isFirebaseAvailable = false;
+
+        try {
+            if (firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('DemoKey')) {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                isFirebaseAvailable = true;
+            }
+        } catch (e) {
+            console.warn("Firebase initialization warning, running in local resilience mode:", e);
+        }
+
+        /* Catálogo completo de Exercícios com as divisões exatas exigidas */
+        const exerciseCatalog = {
+            "Quadríceps": [
+                { name: "Agachamento Livre com Barra", desc: "Excelente para ganho de massa total nas coxas.", video: "Agachamento+Livre+com+Barra" },
+                { name: "Leg Press 45°", desc: "Foco no quadríceps com suporte para segurança lombar.", video: "Leg+Press+45" },
+                { name: "Cadeira Extensora", desc: "Isolamento direto do quadríceps na extensão de joelho.", video: "Cadeira+Extensora" },
+                { name: "Agachamento Hack", desc: "Variação de agachamento guiado com ótimo estímulo.", video: "Agachamento+Hack" },
+                { name: "Afundo / Passada com Halteres", desc: "Trabalho unilateral de alta intensidade.", video: "Afundo+com+Halteres" },
+                { name: "Agachamento Búlgaro", desc: "Excelente exercício unilateral para quadríceps e glúteos.", video: "Agachamento+Bulgaro" }
+            ],
+            "Posterior": [
+                { name: "Mesa Flexora", desc: "Isolamento do grupo dos isquiotibiais em pronação.", video: "Mesa+Flexora" },
+                { name: "Stiff com Barra ou Halteres", desc: "Foco no alongamento e fortalecimento do posterior.", video: "Stiff+com+Barra" },
+                { name: "Cadeira Flexora", desc: "Flexão de joelho sentada com ótimo pico de contração.", video: "Cadeira+Flexora" },
+                { name: "Levantamento Terra Romeno (RDL)", desc: "Trabalho pesado de cadeia posterior.", video: "Levantamento+Terra+Romeno" },
+                { name: "Flexor Unilateral em Pé", desc: "Trabalho focado e isolado para cada perna.", video: "Flexora+Unilateral" }
+            ],
+            "Glúteos": [
+                { name: "Elevação Pélvica com Barra", desc: "O melhor exercício para hipertrofia dos glúteos.", video: "Elevacao+Pelvica+com+Barra" },
+                { name: "Glúteo na Polia (Cabo)", desc: "Extensão de quadril no cabo com tensão constante.", video: "Gluteo+na+Polia" },
+                { name: "Agachamento Sumô", desc: "Base aberta focando em glúteo e adutores.", video: "Agachamento+Sumo" },
+                { name: "Abdução de Quadril na Máquina", desc: "Trabalho focado no glúteo médio.", video: "Cadeira+Abdutora" },
+                { name: "Coice de Glúteo no Cabo", desc: "Isolamento com foco na parte superior do glúteo.", video: "Coice+de+Gluteo+Cabo" }
+            ],
+            "Panturrilha": [
+                { name: "Gêmeos em Pé (No Smith / Máquina)", desc: "Foco no gastrocnêmio com pernas estendidas.", video: "Panturrilha+em+Pe+Smith" },
+                { name: "Gêmeos Sentado (Soleira)", desc: "Foco isolado no músculo sóleo.", video: "Panturrilha+Sentado" },
+                { name: "Panturrilha no Leg Press", desc: "Trabalho de extensão de tornozelo com carga.", video: "Panturrilha+no+Leg+Press" },
+                { name: "Panturrilha Unilateral com Halter", desc: "Exercício com peso do corpo e halter para equilíbrio.", video: "Panturrilha+Unilateral" }
+            ],
+            "Bíceps": [
+                { name: "Rosca Direta com Barra W", desc: "Clássico construtor de volume para o bíceps.", video: "Rosca+Direta+Barra+W" },
+                { name: "Rosca Alternada com Halteres", desc: "Trabalho unilateral com supinação no topo.", video: "Rosca+Alternada" },
+                { name: "Rosca Martelo com Halteres", desc: "Trabalho de braquial e braquiorradial.", video: "Rosca+Martelo" },
+                { name: "Rosca Scott na Barra ou Máquina", desc: "Isolamento total sem auxílio do ombro.", video: "Rosca+Scott" },
+                { name: "Rosca Concentrada", desc: "Pico de contração no bíceps.", video: "Rosca+Concentrada" },
+                { name: "Rosca 45° no Banco Inclinado", desc: "Maior alongamento da cabeça longa do bíceps.", video: "Rosca+Inclinada+45" }
+            ],
+            "Tríceps": [
+                { name: "Tríceps Pulley com Corda", desc: "Foco na cabeça lateral e extensão final.", video: "Triceps+Corda+Polia" },
+                { name: "Tríceps Testa com Barra W", desc: "Excelente exercício para a cabeça longa do tríceps.", video: "Triceps+Testa" },
+                { name: "Tríceps Francês com Halter", desc: "Trabalho acima da cabeça alongando o tríceps.", video: "Triceps+Frances" },
+                { name: "Tríceps Coice na Polia", desc: "Pico máximo de contração sem impulso.", video: "Triceps+Coice+Polia" },
+                { name: "Mergulho nas Paralelas / Banco", desc: "Exercício multiarticular de alta intensidade.", video: "Mergulho+Paralelas" }
+            ],
+            "Antebraço": [
+                { name: "Rosca Punho Direta", desc: "Fortalecimento dos flexores do punho.", video: "Rosca+Punho" },
+                { name: "Rosca Punho Inversa", desc: "Fortalecimento dos extensores do punho.", video: "Rosca+Punho+Inversa" },
+                { name: "Rosca Inversa com Barra W", desc: "Trabalho de braquiorradial e antebraço.", video: "Rosca+Inversa" }
+            ],
+            "Peitoral": [
+                { name: "Supino Reto com Barra", desc: "O principal construtor de peitoral.", video: "Supino+Reto+com+Barra" },
+                { name: "Supino Inclinado com Barra", desc: "Foco na porção superior (clavicular) do peitoral.", video: "Supino+Inclinado+com+Barra" },
+                { name: "Supino Declinado com Barra", desc: "Foco na porção inferior (costal) do peitoral.", video: "Supino+Declinado+com+Barra" },
+                { name: "Supino Inclinado com Halteres", desc: "Maior amplitude e ativação simétrica.", video: "Supino+Inclinado+com+Halteres" },
+                { name: "Crossover na Polia Alta", desc: "Foco na parte inferior e miolo do peitoral.", video: "Crossover+Polia+Alta" },
+                { name: "Crossover na Polia Média", desc: "Tensão constante na porção média do peito.", video: "Crossover+Polia+Media" },
+                { name: "Crossover na Polia Baixa", desc: "Foco na porção superior do peitoral.", video: "Crossover+Polia+Baixa" },
+                { name: "Voador / Pec Deck", desc: "Isolamento do peitoral sem fadiga dos tríceps.", video: "Voador+Pec+Deck" }
+            ],
+            "Costas": [
+                { name: "Puxada Alta Frente na Polia", desc: "Desenvolvimento da largura das costas (dorsal).", video: "Puxada+Alta+Frente" },
+                { name: "Remada Curvada com Barra", desc: "Foco em espessura das costas e trapézio.", video: "Remada+Curvada+com+Barra" },
+                { name: "Remada Baixa com Triângulo", desc: "Trabalho completo da porção média das costas.", video: "Remada+Baixa+Triangulo" },
+                { name: "Remada Unilateral (Serrote)", desc: "Trabalho de dorsal isolado por lado.", video: "Remada+Serrote" },
+                { name: "Barra Fixa (Pull-Up)", desc: "Exercício fundamental com o peso do próprio corpo.", video: "Barra+Fixa" }
+            ],
+            "Ombros": [
+                { name: "Desenvolvimento com Halteres", desc: "Construtor base de volume para os deltoides.", video: "Desenvolvimento+com+Halteres" },
+                { name: "Elevação Lateral com Halteres", desc: "Foco na porção lateral (largura dos ombros).", video: "Elevacao+Lateral" },
+                { name: "Elevação Lateral na Polia", desc: "Tensão contínua no deltoide lateral.", video: "Elevacao+Lateral+Polia" },
+                { name: "Elevação Frontal", desc: "Foco na porção anterior do ombro.", video: "Elevacao+Frontal" },
+                { name: "Crucifixo Inverso (Pec Deck ou Halter)", desc: "Foco no deltoide posterior e escápulas.", video: "Crucifixo+Inverso" }
+            ],
+            "Abdômen": [
+                { name: "Abdominal Supra no Solo / Banco", desc: "Foco na porção superior do reto abdominal.", video: "Abdominal+Supra" },
+                { name: "Abdominal Infra na Barra / Paralela", desc: "Foco na porção inferior do abdômen.", video: "Abdominal+Infra+Barra" },
+                { name: "Prancha Ventral Isométrica", desc: "Fortalecimento do core e estabilização.", video: "Prancha+Ventral" },
+                { name: "Abdominal Oblíquo na Polia / Chão", desc: "Trabalho dos músculos laterais da cintura.", video: "Abdominal+Obliquo" }
+            ]
+        };
+
+        let currentUser = null;
+        let userProfile = null;
+        let selectedDay = 'Segunda';
+        let activeMuscleFilter = 'Todos';
+        let userRoutine = {
+            Segunda: [],
+            Terça: [],
+            Quarta: [],
+            Quinta: [],
+            Sexta: [],
+            Sábado: [],
+            Domingo: []
+        };
+
+        const daysList = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+
+        async function initApp() {
+            renderDaysSelector();
+            renderCatalogFilters();
+            renderCatalog();
+            populateModalCategories();
+
+            if (auth && isFirebaseAvailable) {
+                try {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            currentUser = user;
+                            document.getElementById('auth-container').classList.add('hidden');
+                            const appCont = document.getElementById('app-container');
+                            appCont.classList.remove('hidden');
+                            appCont.classList.add('flex');
+
+                            const statusEl = document.getElementById('auth-status');
+                            statusEl.innerHTML = `<i class="fas fa-cloud-check text-green-400 mr-1"></i> Nuvem Conectada`;
+                            statusEl.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-900/40 text-green-300 border border-green-800/50 mt-1 cursor-pointer hover:bg-green-900/60 transition-all";
+
+                            await loadUserProfile();
+                            await loadUserRoutine();
+                            renderRoutineList();
+                            updateStats();
+                        } else {
+                            checkLocalSession();
+                        }
+                    });
+                } catch (e) {
+                    checkLocalSession();
+                }
+            } else {
+                checkLocalSession();
+            }
+        }
+
+        function checkLocalSession() {
+            const activeUser = localStorage.getItem('fitplanner_active_user');
+            if (activeUser) {
+                try {
+                    currentUser = JSON.parse(activeUser);
+                    document.getElementById('auth-container').classList.add('hidden');
+                    const appCont = document.getElementById('app-container');
+                    appCont.classList.remove('hidden');
+                    appCont.classList.add('flex');
+
+                    const statusEl = document.getElementById('auth-status');
+                    statusEl.innerHTML = `<i class="fas fa-database text-blue-400 mr-1"></i> Modo Local (Clique p/ Nuvem)`;
+                    statusEl.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-900/40 text-blue-300 border border-blue-800/50 mt-1 cursor-pointer hover:bg-blue-900/60 transition-all";
+
+                    loadLocalProfile();
+                    loadLocalRoutine();
+                    renderRoutineList();
+                    updateStats();
+                    return;
+                } catch (e) {}
+            }
+
+            currentUser = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            showLogin();
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+
+            /* Botões Desktop */
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.className = "nav-tab-btn flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all";
+            });
+            const activeNavBtn = document.getElementById(`nav-btn-${tabName}`);
+            if (activeNavBtn) {
+                activeNavBtn.className = "nav-tab-btn flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold bg-blue-600 text-white shadow-md transition-all";
+            }
+
+            /* Botões Mobile */
+            ['routine', 'catalog', 'profile'].forEach(t => {
+                const mobBtn = document.getElementById(`mob-nav-${t}`);
+                if (mobBtn) {
+                    if (t === tabName) {
+                        mobBtn.className = "flex flex-col items-center p-2 rounded-xl text-blue-400 transition-all font-bold";
+                    } else {
+                        mobBtn.className = "flex flex-col items-center p-2 rounded-xl text-slate-400 transition-all";
+                    }
+                }
+            });
+        };
+
+        window.showLogin = function() {
+            document.getElementById('auth-title').innerText = "Entrar";
+            document.getElementById('auth-subtitle').innerText = "Bem-vindo de volta! Acesse sua conta.";
+            document.getElementById('form-register-fields').classList.add('hidden');
+            document.getElementById('auth-password-container').classList.remove('hidden');
+            document.getElementById('forgot-password-link').classList.remove('hidden');
+
+            const btn = document.getElementById('auth-action-btn');
+            btn.innerHTML = '<span>Entrar</span>';
+            btn.onclick = window.handleLogin;
+
+            document.getElementById('auth-toggle-text').innerHTML = 'Não tem uma conta? <button onclick="showRegister()" class="text-blue-400 font-bold ml-1 hover:text-blue-300 transition-colors">Cadastre-se</button>';
+        };
+
+        window.showRegister = function() {
+            document.getElementById('auth-title').innerText = "Criar Conta";
+            document.getElementById('auth-subtitle').innerText = "Comece a organizar seus treinos hoje.";
+            document.getElementById('form-register-fields').classList.remove('hidden');
+            document.getElementById('auth-password-container').classList.remove('hidden');
+            document.getElementById('forgot-password-link').classList.add('hidden');
+
+            const btn = document.getElementById('auth-action-btn');
+            btn.innerHTML = '<span>Cadastrar</span>';
+            btn.onclick = window.handleRegister;
+
+            document.getElementById('auth-toggle-text').innerHTML = 'Já tem uma conta? <button onclick="showLogin()" class="text-blue-400 font-bold ml-1 hover:text-blue-300 transition-colors">Entre</button>';
+        };
+
+        window.showForgotPassword = function() {
+            document.getElementById('auth-title').innerText = "Recuperar Senha";
+            document.getElementById('auth-subtitle').innerText = "Insira seu e-mail ou telefone cadastrado.";
+            document.getElementById('form-register-fields').classList.add('hidden');
+            document.getElementById('auth-password-container').classList.add('hidden');
+
+            const btn = document.getElementById('auth-action-btn');
+            btn.innerHTML = '<i class="fas fa-envelope mr-2"></i><span>Enviar Instruções</span>';
+            btn.onclick = window.handleResetPassword;
+
+            document.getElementById('auth-toggle-text').innerHTML = '<button onclick="showLogin()" class="text-slate-400 font-bold hover:text-white transition-colors"><i class="fas fa-arrow-left mr-1"></i> Voltar para Login</button>';
+        };
+
+        function formatContactForAuth(contact) {
+            const clean = contact.trim().toLowerCase();
+            const numbersOnly = clean.replace(/\D/g, '');
+            if (numbersOnly.length >= 8 && /^\d+$/.test(numbersOnly)) {
+                return `${numbersOnly}@phone.fitplanner.app`;
+            }
+            return clean;
+        }
+
+        window.handleLogin = async function() {
+            const contact = document.getElementById('auth-contact').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!contact || !password) {
+                showToast("Preencha todos os campos", true);
+                return;
+            }
+
+            const btn = document.getElementById('auth-action-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span> Entrando...</span>';
+
+            if (auth && isFirebaseAvailable) {
+                try {
+                    const formattedEmail = formatContactForAuth(contact);
+                    await signInWithEmailAndPassword(auth, formattedEmail, password);
+                    showToast("Login efetuado com sucesso!");
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Entrar</span>';
+                    return;
+                } catch (error) {
+                    console.warn("Firebase Auth Error, fallbacking to local:", error);
+                }
+            }
+
+            /* Fallback Local Auth */
+            localLogin(contact, password, btn);
+        };
+
+        function localLogin(contact, password, btn) {
+            const users = JSON.parse(localStorage.getItem('fitplanner_users') || '[]');
+            const user = users.find(u => u.contact.toLowerCase() === contact.toLowerCase() && u.password === password);
+
+            if (user) {
+                currentUser = { uid: user.uid, email: user.contact };
+                userProfile = { name: user.name, contact: user.contact, dob: user.dob, gender: user.gender };
+                
+                localStorage.setItem('fitplanner_active_user', JSON.stringify(currentUser));
+                localStorage.setItem(`fitplanner_profile_${user.uid}`, JSON.stringify(userProfile));
+
+                document.getElementById('auth-container').classList.add('hidden');
+                const appCont = document.getElementById('app-container');
+                appCont.classList.remove('hidden');
+                appCont.classList.add('flex');
+
+                const statusEl = document.getElementById('auth-status');
+                statusEl.innerHTML = `<i class="fas fa-database text-blue-400 mr-1"></i> Modo Local (Clique p/ Nuvem)`;
+                statusEl.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-900/40 text-blue-300 border border-blue-800/50 mt-1 cursor-pointer hover:bg-blue-900/60 transition-all";
+
+                loadLocalProfile();
+                loadLocalRoutine();
+                renderRoutineList();
+                updateStats();
+                showToast("Login efetuado com sucesso!");
+            } else {
+                showToast("E-mail/Telefone ou senha incorretos", true);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<span>Entrar</span>';
+        }
+
+        window.handleRegister = async function() {
+            const contact = document.getElementById('auth-contact').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const name = document.getElementById('auth-name').value.trim();
+            const dob = document.getElementById('auth-dob').value;
+            const gender = document.getElementById('auth-gender').value;
+
+            if (!contact || !password || !name || !dob || !gender) {
+                showToast("Preencha todos os campos do cadastro", true);
+                return;
+            }
+
+            const btn = document.getElementById('auth-action-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span> Criando conta...</span>';
+
+            if (auth && isFirebaseAvailable) {
+                try {
+                    const formattedEmail = formatContactForAuth(contact);
+                    const userCred = await createUserWithEmailAndPassword(auth, formattedEmail, password);
+
+                    if (db) {
+                        const profileRef = doc(db, 'artifacts', appId, 'users', userCred.user.uid, 'data', 'profile');
+                        await setDoc(profileRef, {
+                            name,
+                            contact,
+                            dob,
+                            gender,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+
+                    showToast("Conta criada com sucesso!");
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Cadastrar</span>';
+                    return;
+                } catch (error) {
+                    console.warn("Firebase Register warning, falling back to local:", error);
+                }
+            }
+
+            /* Fallback Local Register */
+            localRegister(contact, password, name, dob, gender, btn);
+        };
+
+        function localRegister(contact, password, name, dob, gender, btn) {
+            const users = JSON.parse(localStorage.getItem('fitplanner_users') || '[]');
+            const existing = users.find(u => u.contact.toLowerCase() === contact.toLowerCase());
+
+            if (existing) {
+                showToast("E-mail ou telefone já cadastrado", true);
+                btn.disabled = false;
+                btn.innerHTML = '<span>Cadastrar</span>';
+                return;
+            }
+
+            const newUid = 'usr_' + Date.now();
+            const newUser = { uid: newUid, contact, password, name, dob, gender };
+            users.push(newUser);
+            localStorage.setItem('fitplanner_users', JSON.stringify(users));
+
+            currentUser = { uid: newUid, email: contact };
+            userProfile = { name, contact, dob, gender };
+
+            localStorage.setItem('fitplanner_active_user', JSON.stringify(currentUser));
+            localStorage.setItem(`fitplanner_profile_${newUid}`, JSON.stringify(userProfile));
+
+            document.getElementById('auth-container').classList.add('hidden');
+            const appCont = document.getElementById('app-container');
+            appCont.classList.remove('hidden');
+            appCont.classList.add('flex');
+
+            const statusEl = document.getElementById('auth-status');
+            statusEl.innerHTML = `<i class="fas fa-database text-blue-400 mr-1"></i> Modo Local (Clique p/ Nuvem)`;
+            statusEl.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-900/40 text-blue-300 border border-blue-800/50 mt-1 cursor-pointer hover:bg-blue-900/60 transition-all";
+
+            loadLocalProfile();
+            loadLocalRoutine();
+            renderRoutineList();
+            updateStats();
+            showToast("Conta criada com sucesso (Modo Local)!");
+
+            btn.disabled = false;
+            btn.innerHTML = '<span>Cadastrar</span>';
+        }
+
+        window.handleResetPassword = async function() {
+            const contact = document.getElementById('auth-contact').value.trim();
+            if (!contact) {
+                showToast("Digite seu e-mail ou telefone", true);
+                return;
+            }
+
+            if (auth && isFirebaseAvailable) {
+                try {
+                    const formattedEmail = formatContactForAuth(contact);
+                    await sendPasswordResetEmail(auth, formattedEmail);
+                    showToast("E-mail de recuperação enviado!");
+                    showLogin();
+                    return;
+                } catch (e) {}
+            }
+
+            /* Local Reset */
+            const users = JSON.parse(localStorage.getItem('fitplanner_users') || '[]');
+            const user = users.find(u => u.contact.toLowerCase() === contact.toLowerCase());
+            if (user) {
+                showToast("Instruções de recuperação enviadas para o contato!");
+            } else {
+                showToast("Contato não encontrado nos registros local", true);
+            }
+            showLogin();
+        };
+
+        window.loginGuest = async function() {
+            if (auth && isFirebaseAvailable) {
+                try {
+                    await signInAnonymously(auth);
+                    showToast("Conectado como Visitante!");
+                    return;
+                } catch (e) {}
+            }
+
+            currentUser = { uid: 'guest_' + Date.now(), isGuest: true };
+            userProfile = { name: "Visitante FitPlanner", contact: "Modo Visitante", dob: "", gender: "Outro" };
+            localStorage.setItem('fitplanner_active_user', JSON.stringify(currentUser));
+            localStorage.setItem(`fitplanner_profile_${currentUser.uid}`, JSON.stringify(userProfile));
+
+            document.getElementById('auth-container').classList.add('hidden');
+            const appCont = document.getElementById('app-container');
+            appCont.classList.remove('hidden');
+            appCont.classList.add('flex');
+
+            const statusEl = document.getElementById('auth-status');
+            statusEl.innerHTML = `<i class="fas fa-database text-blue-400 mr-1"></i> Modo Local (Clique p/ Nuvem)`;
+            statusEl.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-900/40 text-blue-300 border border-blue-800/50 mt-1 cursor-pointer hover:bg-blue-900/60 transition-all";
+
+            loadLocalProfile();
+            loadLocalRoutine();
+            renderRoutineList();
+            updateStats();
+            showToast("Conectado em modo Local!");
+        };
+
+        window.logout = async function() {
+            localStorage.removeItem('fitplanner_active_user');
+            if (auth && isFirebaseAvailable) {
+                try { await signOut(auth); } catch (e) {}
+            }
+            currentUser = null;
+            userProfile = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            showLogin();
+            showToast("Você saiu da conta.");
+        };
+
+        window.openFirebaseConfigModal = function() {
+            if (savedCustomCfg) {
+                try {
+                    const parsed = JSON.parse(savedCustomCfg);
+                    document.getElementById('cfg-apiKey').value = parsed.apiKey || '';
+                    document.getElementById('cfg-authDomain').value = parsed.authDomain || '';
+                    document.getElementById('cfg-projectId').value = parsed.projectId || '';
+                } catch(e) {}
+            }
+            document.getElementById('firebase-config-modal').classList.remove('hidden');
+        };
+
+        window.closeFirebaseConfigModal = function() {
+            document.getElementById('firebase-config-modal').classList.add('hidden');
+        };
+
+        window.saveCustomFirebaseConfig = function(event) {
+            event.preventDefault();
+            const apiKey = document.getElementById('cfg-apiKey').value.trim();
+            const authDomain = document.getElementById('cfg-authDomain').value.trim();
+            const projectId = document.getElementById('cfg-projectId').value.trim();
+
+            if (!apiKey || !authDomain || !projectId) {
+                showToast("Preencha todos os campos do Firebase", true);
+                return;
+            }
+
+            const cfg = { apiKey, authDomain, projectId, storageBucket: `${projectId}.appspot.com`, appId: "1:custom:web:app" };
+            localStorage.setItem('fitplanner_custom_firebase_cfg', JSON.stringify(cfg));
+            showToast("Configuração salva! Recarregando aplicação...");
+            setTimeout(() => window.location.reload(), 1000);
+        };
+
+        window.clearCustomFirebaseConfig = function() {
+            localStorage.removeItem('fitplanner_custom_firebase_cfg');
+            showToast("Usando Modo Local nativo.");
+            closeFirebaseConfigModal();
+            setTimeout(() => window.location.reload(), 500);
+        };
+
+        async function loadUserProfile() {
+            if (!currentUser || !db || !isFirebaseAvailable) {
+                loadLocalProfile();
+                return;
+            }
+
+            try {
+                const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'data', 'profile');
+                const snap = await getDoc(profileRef);
+                if (snap.exists()) {
+                    userProfile = snap.data();
+                } else {
+                    loadLocalProfile();
+                }
+            } catch (e) {
+                loadLocalProfile();
+            }
+            updateProfileUI();
+        }
+
+        function loadLocalProfile() {
+            const uid = currentUser ? currentUser.uid : 'default';
+            const saved = localStorage.getItem(`fitplanner_profile_${uid}`);
+            if (saved) {
+                try { userProfile = JSON.parse(saved); } catch(e) {}
+            }
+            if (!userProfile) {
+                userProfile = { name: "Usuário FitPlanner", contact: currentUser ? currentUser.email || "Conectado" : "Conectado", dob: "", gender: "Outro" };
+            }
+            updateProfileUI();
+        }
+
+        function updateProfileUI() {
+            if (!userProfile) return;
+            document.getElementById('profile-name').innerText = userProfile.name || 'Usuário';
+            document.getElementById('profile-contact').innerText = userProfile.contact || '';
+            
+            if (userProfile.dob) {
+                const parts = userProfile.dob.split('-');
+                if (parts.length === 3) {
+                    document.getElementById('profile-dob').innerHTML = `<i class="fas fa-calendar-alt text-blue-400 mr-1.5"></i> ${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+            } else {
+                document.getElementById('profile-dob').innerHTML = `<i class="fas fa-calendar-alt text-blue-400 mr-1.5"></i> --/--/----`;
+            }
+            
+            if (userProfile.gender) {
+                let icon = "venus-mars";
+                if (userProfile.gender === "Masculino") icon = "mars";
+                if (userProfile.gender === "Feminino") icon = "venus";
+                document.getElementById('profile-gender').innerHTML = `<i class="fas fa-${icon} text-indigo-400 mr-1.5"></i> ${userProfile.gender}`;
+            } else {
+                document.getElementById('profile-gender').innerHTML = `<i class="fas fa-venus-mars text-indigo-400 mr-1.5"></i> --`;
+            }
+        }
+
+        async function loadUserRoutine() {
+            if (!currentUser || !db || !isFirebaseAvailable) {
+                loadLocalRoutine();
+                return;
+            }
+
+            try {
+                const routineRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'data', 'routine');
+                const snap = await getDoc(routineRef);
+                if (snap.exists() && snap.data().routine) {
+                    userRoutine = snap.data().routine;
+                } else {
+                    loadLocalRoutine();
+                }
+            } catch (e) {
+                loadLocalRoutine();
+            }
+        }
+
+        function loadLocalRoutine() {
+            const uid = currentUser ? currentUser.uid : 'default';
+            const saved = localStorage.getItem(`fitplanner_routine_${uid}`) || localStorage.getItem('fitplanner_routine');
+            if (saved) {
+                try {
+                    userRoutine = JSON.parse(saved);
+                } catch(e) {
+                    initDefaultRoutine();
+                }
+            } else {
+                initDefaultRoutine();
+            }
+        }
+
+        function initDefaultRoutine() {
+            userRoutine = {
+                Segunda: [
+                    { id: '1', category: 'Peitoral', name: 'Supino Reto com Barra', sets: '4', reps: '10-12', weight: '30kg cada lado', notes: 'Descanso 90s', video: 'Supino+Reto+com+Barra', completed: false },
+                    { id: '2', category: 'Peitoral', name: 'Crossover na Polia Alta', sets: '3', reps: '12', weight: '15kg', notes: 'Foco na contração', video: 'Crossover+Polia+Alta', completed: false },
+                    { id: '3', category: 'Tríceps', name: 'Tríceps Pulley com Corda', sets: '4', reps: '12-15', weight: '20kg', notes: 'Abertura no final', video: 'Triceps+Corda+Polia', completed: false }
+                ],
+                Terça: [
+                    { id: '4', category: 'Costas', name: 'Puxada Alta Frente na Polia', sets: '4', reps: '10', weight: '45kg', notes: 'Tronco firme', video: 'Puxada+Alta+Frente', completed: false },
+                    { id: '5', category: 'Bíceps', name: 'Rosca Direta com Barra W', sets: '4', reps: '10-12', weight: '10kg cada lado', notes: 'Sem roubar', video: 'Rosca+Direta+Barra+W', completed: false }
+                ],
+                Quarta: [
+                    { id: '6', category: 'Quadríceps', name: 'Agachamento Livre com Barra', sets: '4', reps: '8-10', weight: '25kg cada lado', notes: 'Amplitude máxima com segurança', video: 'Agachamento+Livre+com+Barra', completed: false },
+                    { id: '7', category: 'Panturrilha', name: 'Gêmeos em Pé (No Smith / Máquina)', sets: '5', reps: '15', weight: '40kg', notes: 'Pausa de 2s no topo', video: 'Panturrilha+em+Pe+Smith', completed: false }
+                ],
+                Quinta: [],
+                Sexta: [],
+                Sábado: [],
+                Domingo: []
+            };
+        }
+
+        async function saveUserRoutine() {
+            const uid = currentUser ? currentUser.uid : 'default';
+            localStorage.setItem(`fitplanner_routine_${uid}`, JSON.stringify(userRoutine));
+            localStorage.setItem('fitplanner_routine', JSON.stringify(userRoutine));
+            
+            if (currentUser && db && isFirebaseAvailable) {
+                try {
+                    const routineRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'data', 'routine');
+                    await setDoc(routineRef, {
+                        routine: userRoutine,
+                        updatedAt: new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.warn("Erro ao salvar rotina na nuvem:", e);
+                }
+            }
+            updateStats();
+        }
+
+        function renderDaysSelector() {
+            const container = document.getElementById('days-selector');
+            container.innerHTML = daysList.map(day => {
+                const isActive = day === selectedDay;
+                const count = userRoutine[day] ? userRoutine[day].length : 0;
+                return `
+                    <button onclick="selectDay('${day}')" class="px-5 py-3 rounded-2xl font-bold text-sm transition-all flex items-center space-x-2 border ${
+                        isActive 
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30' 
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                    }">
+                        <span>${day}</span>
+                        ${count > 0 ? `<span class="text-[10px] ${isActive ? 'bg-white text-blue-600' : 'bg-slate-800 text-slate-300'} px-2 py-0.5 rounded-full font-black">${count}</span>` : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        window.selectDay = function(day) {
+            selectedDay = day;
+            renderDaysSelector();
+            renderRoutineList();
+            document.getElementById('current-day-title').innerText = `${day}-feira`;
+        };
+
+        function renderRoutineList() {
+            const container = document.getElementById('routine-list');
+            const items = userRoutine[selectedDay] || [];
+            
+            document.getElementById('current-day-subtitle').innerText = `${items.length} exercício(s) agendado(s)`;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-900/50 border border-dashed border-slate-800 rounded-3xl p-10 text-center">
+                        <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center text-slate-500 mx-auto mb-3 text-2xl">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-300 mb-1">Nenhum exercício para ${selectedDay}</h3>
+                        <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">Monte seu treino do dia escolhendo do nosso catálogo completo ou criando um personalizado.</p>
+                        <button onclick="openAddExerciseModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all inline-flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Adicionar Exercício
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map((item) => `
+                <div class="bg-slate-900/90 border ${item.completed ? 'border-emerald-900/50 bg-emerald-950/10' : 'border-slate-800'} rounded-2xl p-4 sm:p-5 transition-all shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="flex items-start space-x-3.5 flex-1">
+                        <button onclick="toggleComplete('${item.id}')" class="mt-0.5 w-7 h-7 rounded-xl flex items-center justify-center border transition-all ${
+                            item.completed 
+                                ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-bold' 
+                                : 'border-slate-700 hover:border-blue-500 text-transparent'
+                        }">
+                            <i class="fas fa-check text-xs"></i>
+                        </button>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-blue-950 text-blue-400 border border-blue-800/60">
+                                    ${item.category}
+                                </span>
+                                <h3 class="text-base font-bold text-white ${item.completed ? 'line-through text-slate-400' : ''}">${item.name}</h3>
+                            </div>
+                            
+                            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 mt-2">
+                                <span class="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800"><i class="fas fa-layer-group text-blue-400 mr-1"></i> ${item.sets} séries</span>
+                                <span class="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800"><i class="fas fa-redo text-indigo-400 mr-1"></i> ${item.reps} reps</span>
+                                ${item.weight ? `<span class="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800"><i class="fas fa-weight-hanging text-amber-400 mr-1"></i> ${item.weight}</span>` : ''}
+                            </div>
+                            ${item.notes ? `<p class="text-xs text-slate-400 mt-2 flex items-center"><i class="fas fa-info-circle text-slate-500 mr-1.5"></i> ${item.notes}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-slate-800/80 pt-3 sm:pt-0">
+                        <a href="https://www.youtube.com/results?search_query=como+fazer+${encodeURIComponent(item.video || item.name)}" target="_blank" class="px-3 py-2 rounded-xl bg-red-950/40 border border-red-800/50 text-red-400 hover:bg-red-900/50 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5" title="Ver execução em vídeo">
+                            <i class="fab fa-youtube text-sm"></i>
+                            <span>Vídeo Execução</span>
+                        </a>
+                        <button onclick="editRoutineItem('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-all" title="Editar">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button onclick="deleteRoutineItem('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-red-900/50 text-slate-300 hover:text-red-300 text-xs transition-all" title="Excluir">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.toggleComplete = function(itemId) {
+            const list = userRoutine[selectedDay];
+            const item = list.find(i => i.id === itemId);
+            if (item) {
+                item.completed = !item.completed;
+                saveUserRoutine();
+                renderRoutineList();
+            }
+        };
+
+        window.deleteRoutineItem = function(itemId) {
+            userRoutine[selectedDay] = userRoutine[selectedDay].filter(i => i.id !== itemId);
+            saveUserRoutine();
+            renderDaysSelector();
+            renderRoutineList();
+            showToast("Exercício removido do treino");
+        };
+
+        window.clearDayRoutine = function() {
+            if (userRoutine[selectedDay].length === 0) return;
+            userRoutine[selectedDay] = [];
+            saveUserRoutine();
+            renderDaysSelector();
+            renderRoutineList();
+            showToast(`Treino de ${selectedDay} foi limpo`);
+        };
+
+        function renderCatalogFilters() {
+            const categories = ['Todos', ...Object.keys(exerciseCatalog)];
+            const container = document.getElementById('muscle-filter-pills');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterCatalogCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
+                    activeMuscleFilter === cat 
+                        ? 'bg-blue-600 border-blue-500 text-white shadow-md' 
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                }">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        window.filterCatalogCategory = function(category) {
+            activeMuscleFilter = category;
+            renderCatalogFilters();
+            renderCatalog();
+        };
+
+        window.filterCatalog = function() {
+            renderCatalog();
+        };
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const query = (document.getElementById('catalog-search').value || '').toLowerCase();
+            
+            let itemsToRender = [];
+
+            Object.keys(exerciseCatalog).forEach(cat => {
+                if (activeMuscleFilter === 'Todos' || activeMuscleFilter === cat) {
+                    exerciseCatalog[cat].forEach(ex => {
+                        if (ex.name.toLowerCase().includes(query) || cat.toLowerCase().includes(query) || ex.desc.toLowerCase().includes(query)) {
+                            itemsToRender.push({ ...ex, category: cat });
+                        }
+                    });
+                }
+            });
+
+            if (itemsToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-slate-900/40 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-sm">
+                        Nenhum exercício encontrado com os termos pesquisados.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = itemsToRender.map(ex => `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg group">
+                    <div>
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-blue-950 text-blue-400 border border-blue-800/60">
+                                ${ex.category}
+                            </span>
+                            <a href="https://www.youtube.com/results?search_query=como+fazer+${encodeURIComponent(ex.video || ex.name)}" target="_blank" class="text-red-400 hover:text-red-300 text-xs font-semibold flex items-center gap-1 bg-red-950/30 px-2 py-1 rounded-lg border border-red-900/40 transition-all" title="Ver no YouTube">
+                                <i class="fab fa-youtube text-sm"></i> Ver Vídeo
+                            </a>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">${ex.name}</h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">${ex.desc}</p>
+                    </div>
+
+                    <button onclick="openAddExerciseModalWith('${ex.category}', '${ex.name}', '${ex.video}')" class="w-full bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+                        <i class="fas fa-plus-circle"></i> Adicionar ao Treino
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function populateModalCategories() {
+            const select = document.getElementById('modal-category');
+            select.innerHTML = Object.keys(exerciseCatalog).map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            updateModalExerciseOptions();
+        }
+
+        window.updateModalExerciseOptions = function() {
+            const category = document.getElementById('modal-category').value;
+            const select = document.getElementById('modal-exercise-select');
+            const exercises = exerciseCatalog[category] || [];
+
+            select.innerHTML = `<option value="">-- Selecione do catálogo ou digite abaixo --</option>` + 
+                exercises.map(ex => `<option value="${ex.name}">${ex.name}</option>`).join('');
+        };
+
+        window.syncExerciseNameInput = function() {
+            const selectedVal = document.getElementById('modal-exercise-select').value;
+            if (selectedVal) {
+                document.getElementById('modal-exercise-name').value = selectedVal;
+            }
+        };
+
+        window.openAddExerciseModal = function() {
+            document.getElementById('modal-title').innerText = "Adicionar Exercício ao Treino";
+            document.getElementById('modal-item-id').value = "";
+            document.getElementById('modal-day').value = selectedDay;
+            document.getElementById('modal-sets').value = "4";
+            document.getElementById('modal-reps').value = "10-12";
+            document.getElementById('modal-weight').value = "";
+            document.getElementById('modal-notes').value = "";
+            document.getElementById('modal-exercise-name').value = "";
+
+            populateModalCategories();
+            document.getElementById('exercise-modal').classList.remove('hidden');
+        };
+
+        window.openAddExerciseModalWith = function(category, name, video) {
+            window.openAddExerciseModal();
+            document.getElementById('modal-category').value = category;
+            updateModalExerciseOptions();
+            document.getElementById('modal-exercise-select').value = name;
+            document.getElementById('modal-exercise-name').value = name;
+        };
+
+        window.closeExerciseModal = function() {
+            document.getElementById('exercise-modal').classList.add('hidden');
+        };
+
+        window.editRoutineItem = function(itemId) {
+            const item = userRoutine[selectedDay].find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('modal-title').innerText = "Editar Exercício do Treino";
+            document.getElementById('modal-item-id').value = item.id;
+            document.getElementById('modal-day').value = selectedDay;
+            document.getElementById('modal-category').value = item.category || 'Peitoral';
+            populateModalCategories();
+            document.getElementById('modal-category').value = item.category || 'Peitoral';
+            updateModalExerciseOptions();
+
+            document.getElementById('modal-exercise-name').value = item.name;
+            document.getElementById('modal-sets').value = item.sets;
+            document.getElementById('modal-reps').value = item.reps;
+            document.getElementById('modal-weight').value = item.weight || '';
+            document.getElementById('modal-notes').value = item.notes || '';
+
+            document.getElementById('exercise-modal').classList.remove('hidden');
+        };
+
+        window.saveRoutineItem = function(event) {
+            event.preventDefault();
+
+            const itemId = document.getElementById('modal-item-id').value;
+            const targetDay = document.getElementById('modal-day').value;
+            const category = document.getElementById('modal-category').value;
+            const name = document.getElementById('modal-exercise-name').value.trim();
+            const sets = document.getElementById('modal-sets').value;
+            const reps = document.getElementById('modal-reps').value;
+            const weight = document.getElementById('modal-weight').value.trim();
+            const notes = document.getElementById('modal-notes').value.trim();
+
+            if (!name) {
+                showToast("Escolha ou digite um nome de exercício", true);
+                return;
+            }
+
+            const video = name.replace(/\s+/g, '+');
+
+            if (itemId) {
+                /* Edição de item existente */
+                const list = userRoutine[selectedDay];
+                const index = list.findIndex(i => i.id === itemId);
+                if (index !== -1) {
+                    list[index] = { ...list[index], category, name, sets, reps, weight, notes, video };
+                }
+            } else {
+                /* Criação de novo item */
+                const newItem = {
+                    id: Date.now().toString(),
+                    category,
+                    name,
+                    sets,
+                    reps,
+                    weight,
+                    notes,
+                    video,
+                    completed: false
+                };
+                userRoutine[targetDay].push(newItem);
+            }
+
+            saveUserRoutine();
+            renderDaysSelector();
+            renderRoutineList();
+            closeExerciseModal();
+            showToast(itemId ? "Exercício atualizado!" : "Exercício adicionado ao treino!");
+        };
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msgEl = document.getElementById('toast-msg');
+
+            msgEl.innerText = msg;
+            if (isError) {
+                icon.className = "fas fa-exclamation-circle text-red-400 text-lg";
+                toast.className = toast.className.replace('border-slate-700', 'border-red-800');
+            } else {
+                icon.className = "fas fa-check-circle text-emerald-400 text-lg";
+                toast.className = toast.className.replace('border-red-800', 'border-slate-700');
+            }
+
+            toast.classList.remove('opacity-0', '-translate-y-10', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-10', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function updateStats() {
+            let totalInRoutine = 0;
+            Object.keys(userRoutine).forEach(day => {
+                totalInRoutine += userRoutine[day].length;
+            });
+            document.getElementById('stat-total-exercises').innerText = totalInRoutine;
+        }
+    </script>
+</body>
+</html>
